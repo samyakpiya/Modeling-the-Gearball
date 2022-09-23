@@ -3,104 +3,86 @@
 #include "node.cpp"
 #include <queue>
 #include <vector>
-// #include "astar.cpp"
+#include "astar.cpp"
 
-// Admissible Heuristic: The number of pieces out of position divided by 36. 36 is the number of pieces that go out of position when one rotation is performed on a solved gearball.
-double heuristic(Gearball ball)
-{
-     Side *currentBall = ball.getSides();
-
-     int piecesOutOfPos = 0;
-     string currPieceColor;
-
-     // iterate through each face of the gearball
-     for (int sides = 0; sides < SIDES; sides++)
-     {
-          for (int i = 0; i < ROWS; i++)
-          {
-               for (int j = 0; j < COLUMNS; j++)
-               {
-
-                    currPieceColor = currentBall[sides].getPiece(i, j).getColor();
-                    if (currPieceColor == " ")
-                    {
-                         continue;
-                    }
-                    else
-                    {
-                         if (sides == TOP && currPieceColor != "Y")
-                         {
-                              piecesOutOfPos++;
-                         }
-                         else if (sides == BOTTOM && currPieceColor != "O")
-                         {
-                              piecesOutOfPos++;
-                         }
-                         else if (sides == LEFT && currPieceColor != "B")
-                         {
-                              piecesOutOfPos++;
-                         }
-                         else if (sides == RIGHT && currPieceColor != "G")
-                         {
-                              piecesOutOfPos++;
-                         }
-                         else if (sides == FRONT && currPieceColor != "R")
-                         {
-                              piecesOutOfPos++;
-                         }
-                         else if (sides == REAR && currPieceColor != "P")
-                         {
-                              piecesOutOfPos++;
-                         }
-                    }
-               }
-          }
-     }
-
-     // Comment
-     cout << "The pieces that are out of position are: " << piecesOutOfPos;
-
-     int hValue = piecesOutOfPos / 36;
-     return hValue;
-}
-
+// Using the AStar algorithm to pathfind a sequence of moves that solves the current gearball
 void solve(Gearball ball)
 {
-     // auto cmp = [](int left, int right)
-     // { return (left) < (right); };
-     // priority_queue<int, vector<int>, decltype(cmp)> OPEN(cmp);
+     auto cmp = [](Node x, Node y)
+     { if (x.fCost != y.fCost) {
+          return x.fCost > y.fCost;
+     } else {
+          return x.hCost > y.hCost;
+     } };
 
-     // for (int elm : {9, 8, 7, 6, 5, 4, 3, 2, 1, -1})
-     // {
-     //      OPEN.push(elm);
-     // }
      // OPEN //the set of nodes to be evaluated
+     priority_queue<Node, vector<Node>, decltype(cmp)> OPENED(cmp);
+
      // CLOSED //the set of nodes already evaluated
+     vector<Node> CLOSED;
+
      // g_cost = distance from starting node
      // h_cost = distance from end node
      // f_cost = g_cost + h_cost
 
-     // priority_queue<int, vector<int>, greater<int>> OPEN;
-
-     // Use two min heaps one for f-value, the other for h-cost sorting
-
      // add the start node to OPEN
+     Node root = Node(ball);
+     OPENED.push(root);
 
-     // while (ball.isSolved() != 1)
-     // {
-     //      for (int i = 0; i < 4; i++)
-     //      {
-     //           OPEN.push(ball.rotate(i));
-     //      }
-     // }
+     // loop until the ball is solved
+     while (ball.isSolved() != 1)
+     {
+          // current = node in OPEN with the lowest f_cost
+          Node current = OPENED.top();
 
-     // loop
-     //         current = node in OPEN with the lowest f_cost
-     //         remove current from OPEN
-     //         add current to CLOSED
+          // remove current from OPEN
+          OPENED.pop();
 
-     //         if current is the target node //path has been found
-     //                 return
+          // add current to CLOSED
+          CLOSED.push_back(current);
+
+          // if current is the target node //path has been found
+          // return
+          if (current.currGearballState.isSolved())
+          {
+               cout << "The gearball has been solved!" << endl;
+               return;
+          }
+
+          Node neighbours[4] = {current.rotate(ROTATE_TCCW), current.rotate(ROTATE_BCCW), current.rotate(ROTATE_LCCW), current.rotate(ROTATE_RCCW)};
+
+          bool find(Node nodeToFind, vector<Node> vecNodes)
+          {
+               for (auto &node : vecNodes)
+               {
+                    if (node.currGearballState.isEqual(nodeToFind))
+                    {
+                         return true;
+                    }
+               }
+               return false;
+          }
+
+          // foreach neighbour of the current node
+          for (Node neighbour : neighbours)
+          {
+               // if neighbour is not traversable or neighbour is in CLOSED
+               if (find(neighbour, CLOSED))
+               {
+                    // skip to the next neighbour
+                    continue;
+               }
+
+               // if new path to neighbour is shorter OR neighbour is not in OPEN
+               if ()
+               {
+               }
+               //         set f_cost of neighbour
+               //         set parent of neighbour to current
+               //         if neighbour is not in OPEN
+               //                  add neighbour to OPEN
+          }
+     }
 
      //         foreach neighbour of the current node
      //                 if neighbour is not traversable or neighbour is in CLOSED
@@ -110,6 +92,7 @@ void solve(Gearball ball)
      //                         set f_cost of neighbour
      //                         set parent of neighbour to current
      //                         if neighbour is not in OPEN
+     //                                  add neighbour to OPEN
 }
 
 int main()
@@ -130,9 +113,12 @@ int main()
      cin >> numOfRotations;
 
      // Perform "numOfRotations" random rotations on the gearball
+
      ball.randomizeCC(stoi(numOfRotations));
 
-     int h_value = heuristic(ball);
+     AStar aStar;
+
+     int h_value = aStar.heuristic(ball);
 
      return 0;
 }

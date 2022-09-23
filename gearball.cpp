@@ -191,6 +191,40 @@ public:
         return true;
     }
 
+    // checks if two gearballs are equal (i.e. if both have the same colors in the same faces)
+    bool isEqual(Gearball ball)
+    {
+        Side *currentBall = this->getSides();
+        Side *anotherBall = ball.getSides();
+        string currPieceColor;
+        string anotherPieceColor;
+
+        for (int sides = 0; sides < SIDES; sides++)
+        {
+            for (int i = 0; i < ROWS; i++)
+            {
+                for (int j = 0; j < COLUMNS; j++)
+                {
+
+                    currPieceColor = currentBall[sides].getPiece(i, j).getColor();
+                    if (currPieceColor == " ")
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        anotherPieceColor = anotherBall[sides].getPiece(i, j).getColor();
+                        if (currPieceColor != anotherPieceColor)
+                        {
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
     // populate the Sides array with every side
     void generateSides()
     {
@@ -580,6 +614,7 @@ public:
         }
     }
 
+    // constructor
     Gearball()
     {
         this->generateSides();

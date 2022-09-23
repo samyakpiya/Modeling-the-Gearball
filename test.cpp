@@ -1,39 +1,27 @@
-#include <iostream>
-using namespace std;
+#include "node.cpp"
+#include <queue>
+#include <vector>
+#include "gearball.cpp"
 
-class Test
+template <typename T>
+void print_queue(T &q)
 {
-public:
-    int testNumber;
-
-    Test getTest()
+    while (!q.empty())
     {
-        return *this;
+        cout << q.top().fCost << " " << q.top().hCost << endl;
+        q.pop();
     }
-
-    void setTestNumber(int testNumber)
-    {
-        this->testNumber = testNumber;
-    }
-
-    Test(int testNumber)
-    {
-        this->setTestNumber(testNumber);
-    }
-
-    Test()
-    {
-        this->testNumber = 0;
-    }
-};
+}
 
 int main()
 {
-    Test test1 = Test(1);
-    Test test2;
-    test2 = test1.getTest();
-    test2.setTestNumber(2);
+    Gearball ball1 = Gearball();
+    Gearball ball2 = Gearball();
 
-    cout << test1.testNumber << endl;
-    cout << test2.testNumber;
+    ball1.rotate_bcw();
+    ball2.rotate_bcw();
+
+    cout << ball1.isEqual(ball2) << endl;
+
+    return 0;
 }

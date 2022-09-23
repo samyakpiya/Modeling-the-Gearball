@@ -1,11 +1,20 @@
+#ifndef NODE
+#define NODE
+
 #include <stack>
+#include "gearball.cpp"
+#include "astar.cpp"
 
 class Node
 {
 public:
-    int gCost;
+    int gCost = 0;
     int hCost;
-    stack<int> movesPerformed;
+    int fCost;
+    Gearball currGearballState;
+
+    // Might not need these lines of code as we are storing the current state of the Gearball
+    // stack<int> movesPerformed;
     // stack.push(elm)
     // stack.pop()
     //
@@ -14,17 +23,20 @@ public:
     //     stack.pop();
     // }
 
-    void storeMove(int movePerformed)
+    Node(Gearball ball)
     {
-        this->movesPerformed.push(movePerformed);
-    }
-
-    Node()
-    {
+        AStar aStar;
+        this->hCost = aStar.heuristic(this->currGearballState);
+        this->gCost = gCost; // parent gCost + 10;
+        this->fCost = gCost + hCost;
+        this->currGearballState = ball;
     }
 
     int getFCost()
     {
-        return hCost + gCost;
+        this->fCost = gCost + hCost;
+        return this->fCost;
     }
 };
+
+#endif

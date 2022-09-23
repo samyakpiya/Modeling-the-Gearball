@@ -1,28 +1,79 @@
+#ifndef ASTAR
+#define ASTAR
+
 #include "gearball.cpp"
 #include <functional>
 #include <queue>
 #include <vector>
 
-int main()
+// Admissible Heuristic: The number of pieces out of position divided by 36. 36 is the number of pieces that go out of position when one rotation is performed on a solved gearball.
+class AStar
 {
-        priority_queue<int, vector<int>, greater<int>> q; // queue in min heap order (lowest value is at the top)
-        int elm[10] = {9, 8, 7, 6, 5, 4, 3, 2, 1, -1};
-        for (int i = 0; i < 10; i++)
+public:
+        double heuristic(Gearball ball)
         {
-                q.push(elm[i]);
+                Side *currentBall = ball.getSides();
+
+                int piecesOutOfPos = 0;
+                string currPieceColor;
+
+                // iterate through each face of the gearball
+                for (int sides = 0; sides < SIDES; sides++)
+                {
+                        for (int i = 0; i < ROWS; i++)
+                        {
+                                for (int j = 0; j < COLUMNS; j++)
+                                {
+
+                                        currPieceColor = currentBall[sides].getPiece(i, j).getColor();
+                                        if (currPieceColor == " ")
+                                        {
+                                                continue;
+                                        }
+                                        else
+                                        {
+                                                if (sides == TOP && currPieceColor != "Y")
+                                                {
+                                                        piecesOutOfPos++;
+                                                }
+                                                else if (sides == BOTTOM && currPieceColor != "O")
+                                                {
+                                                        piecesOutOfPos++;
+                                                }
+                                                else if (sides == LEFT && currPieceColor != "B")
+                                                {
+                                                        piecesOutOfPos++;
+                                                }
+                                                else if (sides == RIGHT && currPieceColor != "G")
+                                                {
+                                                        piecesOutOfPos++;
+                                                }
+                                                else if (sides == FRONT && currPieceColor != "R")
+                                                {
+                                                        piecesOutOfPos++;
+                                                }
+                                                else if (sides == REAR && currPieceColor != "P")
+                                                {
+                                                        piecesOutOfPos++;
+                                                }
+                                        }
+                                }
+                        }
+                }
+
+                // Comment
+                int hValue = piecesOutOfPos / 36;
+
+                cout << "The pieces that are out of position are: " << piecesOutOfPos << endl;
+                cout << "The h Values for this Gearball state is: " << hValue << endl;
+
+                return hValue;
         }
 
-        cout << q.top();
-
-        auto cmp = [](int left, int right)
-        { return (left) < (right); };
-        priority_queue<int, vector<int>, decltype(cmp)> q3(cmp);
-
-        for (int elm : {9, 8, 7, 6, 5, 4, 3, 2, 1, -1})
+        AStar()
         {
-                q3.push(elm);
         }
-}
+};
 
 /*
 Heuristic:
@@ -61,3 +112,5 @@ loop
                         set parent of neighbour to current
                         if neighbour is not in OPEN
 */
+
+#endif
