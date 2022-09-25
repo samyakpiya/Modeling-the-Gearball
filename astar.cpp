@@ -2,13 +2,17 @@
 #define ASTAR
 
 #include "gearball.cpp"
+#include "node.cpp"
 #include <functional>
 #include <queue>
 #include <vector>
+#include <stack>
+#include <algorithm>
 
 // Admissible Heuristic: The number of pieces out of position divided by 36. 36 is the number of pieces that go out of position when one rotation is performed on a solved gearball.
 class AStar
 {
+
 public:
         double heuristic(Gearball ball)
         {
@@ -68,6 +72,136 @@ public:
                 cout << "The h Values for this Gearball state is: " << hValue << endl;
 
                 return hValue;
+        }
+
+        bool find(Node nodeToFind, vector<Node> vecNodes)
+        {
+                for (auto &node : vecNodes)
+                {
+                        if (node.currGearballState.isEqual(nodeToFind.currGearballState))
+                        {
+                                return true;
+                        }
+                }
+                return false;
+        }
+
+        // Using the AStar algorithm to pathfind a sequence of moves that solves the current gearball
+        void solve(Gearball ball)
+        {
+                auto cmp = [](Node x, Node y)
+                {
+                        if (x.fCost != y.fCost)
+                        {
+                                return x.fCost > y.fCost;
+                        }
+                        else
+                        {
+                                return x.hCost > y.hCost;
+                        };
+                };
+
+                // OPEN //the set of nodes to be evaluated
+                priority_queue<Node, vector<Node>, decltype(cmp)> OPENED(cmp);
+
+                // CLOSED //the set of nodes already evaluated
+                vector<Node> CLOSED;
+
+                // add the start node to OPEN
+                Node root = Node(ball, this->heuristic(ball));
+                OPENED.push(root);
+
+                stack<int> movesPerformed;
+                // loop until the ball is solved
+                while (!ball.isSolved())
+                {
+                        // current = node in OPEN with the lowest f_cost
+                        Node currentNode = OPENED.top();
+
+                        // remove current from OPEN
+                        OPENED.pop();
+
+                        // add current to CLOSED
+                        CLOSED.push_back(currentNode);
+
+                        // if current is the target node //path has been found
+                        // return
+                        if (currentNode.currGearballState.isSolved())
+                        {
+                                cout << endl;
+                                cout << "-----------The gearball has been solved! -----------" << endl;
+                                cout << endl;
+                                while (currentNode.parent != NULL)
+                                {
+                                        movesPerformed.push(currentNode.movePerformed);
+                                        currentNode = *currentNode.parent;
+                                }
+
+                                while (!movesPerformed.empty())
+                                {
+                                        ball.rotate(movesPerformed.top());
+                                        movesPerformed.pop();
+                                }
+                                return;
+                        }
+
+                        cout << "Neighbors Start:" << endl;
+                        Gearball neighborBalls[4] = {currentNode.currGearballState.rotate(ROTATE_TCCW), currentNode.currGearballState.rotate(ROTATE_BCCW), currentNode.currGearballState.rotate(ROTATE_LCCW), currentNode.currGearballState.rotate(ROTATE_RCCW)};
+                        Node neighbors[4] = {Node(ROTATE_TCCW, neighborBalls[0], this->heuristic(neighborBalls[0]), &currentNode),
+                                             Node(ROTATE_BCCW, neighborBalls[1], this->heuristic(neighborBalls[1]), &currentNode),
+                                             Node(ROTATE_LCCW, neighborBalls[2], this->heuristic(neighborBalls[2]), &currentNode),
+                                             Node(ROTATE_RCCW, neighborBalls[3], this->heuristic(neighborBalls[3]), &currentNode)};
+
+                        cout << "Neighbors End" << endl;
+
+                        // foreach neighbour of the current node
+                        for (Node neighbor : neighbors)
+                        {
+                                // if neighbour is not traversable or neighbour is in CLOSED
+                                if (find(neighbor, CLOSED))
+                                {
+                                        // skip to the next neighbour
+                                        continue;
+                                }
+
+                                // if new path to neighbour is shorter OR neighbour is not in OPEN
+                                //         set f_cost of neighbour
+                                //         set parent of neighbour to current
+                                //         if neighbour is not in OPEN
+                                //                  add neighbour to OPEN
+                                bool newPathShorter = false;
+                                int newMovementCostToNeighbor = currentNode.gCost + 10;
+                                if (newMovementCostToNeighbor < neighbor.gCost)
+                                {
+                                        neighbor.setGCost(newMovementCostToNeighbor);
+                                        neighbor.setParent(&currentNode);
+
+                                        OPENED.push(neighbor);
+                                }
+
+                                // bool neighborInOpen = false;
+                                // priority_queue<Node, vector<Node>, decltype(cmp)> OPENED_COPY(cmp);
+                                // OPENED_COPY = OPENED;
+
+                                // while (!OPENED_COPY.empty())
+                                // {
+                                //         if (OPENED_COPY.top().currGearballState.isEqual(neighbor.currGearballState))
+                                //         {
+                                //                 OPENED_COPY.pop();
+                                //                 neighborInOpen = true;
+                                //                 break;
+                                //         }
+                                // }
+
+                                // if (!neighborInOpen)
+                                // { // add condition: new path to neighbour is shorter
+                                //         if (!neighborInOpen)
+                                //         {
+                                //                 OPENED.push(neighbor)
+                                //         }
+                                // }
+                        }
+                }
         }
 
         AStar()

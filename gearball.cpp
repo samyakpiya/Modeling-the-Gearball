@@ -1,3 +1,4 @@
+// hello
 #ifndef GEARBALL
 #define GEARBALL
 
@@ -310,46 +311,19 @@ public:
         // Right Face Rotation
         this->rotateFace180Deg(RIGHT);
 
-        printBall();
-
         return *this;
     }
 
     Gearball rotate_rccw()
     {
+        for (int i = 0; i < 11; i++)
+        {
+            cout << i << " ---------------- " << endl;
+            this->rotate_rcw();
+        }
+
         cout << "Rotating the Gearball Right Counter Clockwise: " << endl
              << endl;
-
-        this->makeCopy();
-
-        // Center Pieces
-        for (int rowNumber = 0; rowNumber < ROWS; rowNumber++)
-        {
-            sides[TOP].setPiece(rowNumber, 2, previousSides[REAR].getPiece(rowNumber, 2));
-            sides[FRONT].setPiece(rowNumber, 2, previousSides[TOP].getPiece(rowNumber, 2));
-            sides[BOTTOM].setPiece(rowNumber, 2, previousSides[FRONT].getPiece(rowNumber, 2));
-            sides[REAR].setPiece(rowNumber, 2, previousSides[BOTTOM].getPiece(rowNumber, 2));
-        }
-
-        // Corners, and Edges
-        for (int rowNumber = 0; rowNumber < ROWS; rowNumber++)
-        {
-            sides[TOP].setPiece(rowNumber, 3, previousSides[BOTTOM].getPiece(rowNumber, 3));
-            sides[FRONT].setPiece(rowNumber, 3, previousSides[REAR].getPiece(rowNumber, 3));
-            sides[BOTTOM].setPiece(rowNumber, 3, previousSides[TOP].getPiece(rowNumber, 3));
-            sides[REAR].setPiece(rowNumber, 3, previousSides[FRONT].getPiece(rowNumber, 3));
-        }
-
-        // Gears
-        sides[TOP].setPiece(2, 4, previousSides[BOTTOM].getPiece(2, 4));
-        sides[FRONT].setPiece(2, 4, previousSides[REAR].getPiece(2, 4));
-        sides[BOTTOM].setPiece(2, 4, previousSides[TOP].getPiece(2, 4));
-        sides[REAR].setPiece(2, 4, previousSides[FRONT].getPiece(2, 4));
-
-        // Right Face Rotation
-        this->rotateFace180Deg(RIGHT);
-
-        printBall();
 
         return *this;
     }
@@ -388,46 +362,19 @@ public:
         // Left Face Rotation
         this->rotateFace180Deg(LEFT);
 
-        printBall();
-
         return *this;
     }
 
     Gearball rotate_lccw()
     {
+        for (int i = 0; i < 11; i++)
+        {
+            cout << i << " ---------------- " << endl;
+            this->rotate_lcw();
+        }
+
         cout << "Rotating the Gearball Left Counter Clockwise: " << endl
              << endl;
-
-        this->makeCopy();
-
-        // Center Pieces
-        for (int rowNumber = 0; rowNumber < ROWS; rowNumber++)
-        {
-            sides[TOP].setPiece(rowNumber, 2, previousSides[REAR].getPiece(rowNumber, 2));
-            sides[FRONT].setPiece(rowNumber, 2, previousSides[TOP].getPiece(rowNumber, 2));
-            sides[BOTTOM].setPiece(rowNumber, 2, previousSides[FRONT].getPiece(rowNumber, 2));
-            sides[REAR].setPiece(rowNumber, 2, previousSides[BOTTOM].getPiece(rowNumber, 2));
-        }
-
-        // Corners, and Edges
-        for (int rowNumber = 0; rowNumber < ROWS; rowNumber++)
-        {
-            sides[TOP].setPiece(rowNumber, 1, previousSides[BOTTOM].getPiece(rowNumber, 1));
-            sides[FRONT].setPiece(rowNumber, 1, previousSides[REAR].getPiece(rowNumber, 1));
-            sides[BOTTOM].setPiece(rowNumber, 1, previousSides[TOP].getPiece(rowNumber, 1));
-            sides[REAR].setPiece(rowNumber, 1, previousSides[FRONT].getPiece(rowNumber, 1));
-        }
-
-        // Gears
-        sides[TOP].setPiece(2, 0, previousSides[BOTTOM].getPiece(2, 0));
-        sides[FRONT].setPiece(2, 0, previousSides[REAR].getPiece(2, 0));
-        sides[BOTTOM].setPiece(2, 0, previousSides[TOP].getPiece(2, 0));
-        sides[REAR].setPiece(2, 0, previousSides[FRONT].getPiece(2, 0));
-
-        // Left Face Rotation
-        this->rotateFace180Deg(LEFT);
-
-        printBall();
 
         return *this;
     }
@@ -444,68 +391,62 @@ public:
         {
             sides[LEFT].setPiece(2, colNumber, previousSides[FRONT].getPiece(2, colNumber));
             sides[FRONT].setPiece(2, colNumber, previousSides[RIGHT].getPiece(2, colNumber));
-            sides[RIGHT].setPiece(2, colNumber, previousSides[REAR].getPiece(2, colNumber));
-            sides[REAR].setPiece(2, colNumber, previousSides[LEFT].getPiece(2, colNumber));
         }
 
-        // Corners, and Edges
+        sides[RIGHT].setPiece(2, 0, previousSides[REAR].getPiece(2, 4));
+        sides[RIGHT].setPiece(2, 1, previousSides[REAR].getPiece(2, 3));
+        sides[RIGHT].setPiece(2, 2, previousSides[REAR].getPiece(2, 2));
+        sides[RIGHT].setPiece(2, 3, previousSides[REAR].getPiece(2, 1));
+        sides[RIGHT].setPiece(2, 4, previousSides[REAR].getPiece(2, 0));
+
+        sides[REAR].setPiece(2, 0, previousSides[LEFT].getPiece(2, 4));
+        sides[REAR].setPiece(2, 1, previousSides[LEFT].getPiece(2, 3));
+        sides[REAR].setPiece(2, 2, previousSides[LEFT].getPiece(2, 2));
+        sides[REAR].setPiece(2, 3, previousSides[LEFT].getPiece(2, 1));
+        sides[REAR].setPiece(2, 4, previousSides[LEFT].getPiece(2, 0));
+
+        // Left + Right corners and edges
         for (int colNumber = 0; colNumber < COLUMNS; colNumber++)
         {
             sides[LEFT].setPiece(1, colNumber, previousSides[RIGHT].getPiece(1, colNumber));
-            sides[FRONT].setPiece(1, colNumber, previousSides[REAR].getPiece(1, colNumber));
             sides[RIGHT].setPiece(1, colNumber, previousSides[LEFT].getPiece(1, colNumber));
-            sides[REAR].setPiece(3, colNumber, previousSides[FRONT].getPiece(3, colNumber));
         }
 
-        // Gears
+        // Front + Rear corners and edges
+        sides[FRONT].setPiece(1, 1, previousSides[REAR].getPiece(3, 3));
+        sides[FRONT].setPiece(1, 2, previousSides[REAR].getPiece(3, 2));
+        sides[FRONT].setPiece(1, 3, previousSides[REAR].getPiece(3, 1));
+
+        sides[REAR].setPiece(3, 3, previousSides[FRONT].getPiece(1, 1));
+        sides[REAR].setPiece(3, 2, previousSides[FRONT].getPiece(1, 2));
+        sides[REAR].setPiece(3, 1, previousSides[FRONT].getPiece(1, 3));
+
+        // Left + Right Gears
         sides[LEFT].setPiece(0, 2, previousSides[RIGHT].getPiece(0, 2));
-        sides[FRONT].setPiece(0, 2, previousSides[REAR].getPiece(0, 2));
         sides[RIGHT].setPiece(0, 2, previousSides[LEFT].getPiece(0, 2));
-        sides[REAR].setPiece(4, 2, previousSides[FRONT].getPiece(4, 2));
+
+        // Front + Rear Gears
+        sides[FRONT].setPiece(0, 2, previousSides[REAR].getPiece(4, 2));
+        sides[REAR].setPiece(4, 2, previousSides[FRONT].getPiece(0, 2));
 
         // TOP Face Rotation
         this->rotateFace180Deg(TOP);
-
-        printBall();
 
         return *this;
     }
 
     Gearball rotate_tccw()
     {
+        for (int i = 0; i < 11; i++)
+        {
+            cout << i << " ---------------- " << endl;
+            this->rotate_tcw();
+        }
+
         cout << "Rotating the Gearball Top Counter Clockwise: " << endl
              << endl;
 
-        this->makeCopy();
-
-        // Center Pieces
-        for (int colNumber = 0; colNumber < COLUMNS; colNumber++)
-        {
-            sides[LEFT].setPiece(2, colNumber, previousSides[REAR].getPiece(2, 4 - colNumber));
-            sides[FRONT].setPiece(2, colNumber, previousSides[LEFT].getPiece(2, colNumber));
-            sides[RIGHT].setPiece(2, colNumber, previousSides[FRONT].getPiece(2, colNumber));
-            sides[REAR].setPiece(2, colNumber, previousSides[RIGHT].getPiece(2, colNumber));
-        }
-
-        // Corners, and Edges
-        for (int colNumber = 0; colNumber < COLUMNS; colNumber++)
-        {
-            sides[LEFT].setPiece(1, colNumber, previousSides[RIGHT].getPiece(1, colNumber));
-            sides[FRONT].setPiece(1, colNumber, previousSides[REAR].getPiece(3, 4 - colNumber));
-            sides[RIGHT].setPiece(1, colNumber, previousSides[LEFT].getPiece(1, colNumber));
-            sides[REAR].setPiece(3, colNumber, previousSides[FRONT].getPiece(1, 4 - colNumber));
-        }
-
-        // Gears
-        sides[LEFT].setPiece(0, 2, previousSides[RIGHT].getPiece(0, 2));
-        sides[FRONT].setPiece(0, 2, previousSides[REAR].getPiece(0, 2));
-        sides[RIGHT].setPiece(0, 2, previousSides[LEFT].getPiece(0, 2));
-        sides[REAR].setPiece(4, 2, previousSides[FRONT].getPiece(4, 2));
-
-        // TOP Face Rotation
-        this->rotateFace180Deg(TOP);
-
-        printBall();
+        this->printBall();
 
         return *this;
     }
@@ -522,96 +463,105 @@ public:
         {
             sides[LEFT].setPiece(2, colNumber, previousSides[FRONT].getPiece(2, colNumber));
             sides[FRONT].setPiece(2, colNumber, previousSides[RIGHT].getPiece(2, colNumber));
-            sides[RIGHT].setPiece(2, colNumber, previousSides[REAR].getPiece(2, colNumber));
-            sides[REAR].setPiece(2, colNumber, previousSides[LEFT].getPiece(2, colNumber));
         }
 
-        // Corners, and Edges
+        sides[RIGHT].setPiece(2, 0, previousSides[REAR].getPiece(2, 4));
+        sides[RIGHT].setPiece(2, 1, previousSides[REAR].getPiece(2, 3));
+        sides[RIGHT].setPiece(2, 2, previousSides[REAR].getPiece(2, 2));
+        sides[RIGHT].setPiece(2, 3, previousSides[REAR].getPiece(2, 1));
+        sides[RIGHT].setPiece(2, 4, previousSides[REAR].getPiece(2, 0));
+
+        sides[REAR].setPiece(2, 0, previousSides[LEFT].getPiece(2, 4));
+        sides[REAR].setPiece(2, 1, previousSides[LEFT].getPiece(2, 3));
+        sides[REAR].setPiece(2, 2, previousSides[LEFT].getPiece(2, 2));
+        sides[REAR].setPiece(2, 3, previousSides[LEFT].getPiece(2, 1));
+        sides[REAR].setPiece(2, 4, previousSides[LEFT].getPiece(2, 0));
+
+        // Left + Right corners, and Edges
         for (int colNumber = 0; colNumber < COLUMNS; colNumber++)
         {
             sides[LEFT].setPiece(3, colNumber, previousSides[RIGHT].getPiece(3, colNumber));
-            sides[FRONT].setPiece(3, colNumber, previousSides[REAR].getPiece(1, colNumber));
             sides[RIGHT].setPiece(3, colNumber, previousSides[LEFT].getPiece(3, colNumber));
-            sides[REAR].setPiece(1, colNumber, previousSides[FRONT].getPiece(3, colNumber));
         }
 
-        // Gears
+        // Front + Rear corners and edges
+        sides[FRONT].setPiece(3, 3, previousSides[REAR].getPiece(1, 1));
+        sides[FRONT].setPiece(3, 2, previousSides[REAR].getPiece(1, 2));
+        sides[FRONT].setPiece(3, 1, previousSides[REAR].getPiece(1, 3));
+
+        sides[REAR].setPiece(1, 1, previousSides[FRONT].getPiece(3, 3));
+        sides[REAR].setPiece(1, 2, previousSides[FRONT].getPiece(3, 2));
+        sides[REAR].setPiece(1, 3, previousSides[FRONT].getPiece(3, 1));
+
+        // Left + Right Gears
         sides[LEFT].setPiece(4, 2, previousSides[RIGHT].getPiece(4, 2));
-        sides[FRONT].setPiece(4, 2, previousSides[REAR].getPiece(0, 2));
         sides[RIGHT].setPiece(4, 2, previousSides[LEFT].getPiece(4, 2));
+
+        // Front + Rear Gears
         sides[REAR].setPiece(0, 2, previousSides[FRONT].getPiece(4, 2));
+        sides[FRONT].setPiece(4, 2, previousSides[REAR].getPiece(0, 2));
 
         // BOTTOM Face Rotation
         this->rotateFace180Deg(BOTTOM);
-
-        printBall();
 
         return *this;
     }
 
     Gearball rotate_bccw()
     {
+        for (int i = 0; i < 11; i++)
+        {
+            cout << i << " ---------------- " << endl;
+            this->rotate_bcw();
+        }
+
         cout << "Rotating the Gearball Bottom Counter Clockwise: " << endl
              << endl;
 
-        this->makeCopy();
-
-        // Center Pieces
-        for (int colNumber = 0; colNumber < COLUMNS; colNumber++)
-        {
-            sides[LEFT].setPiece(2, colNumber, previousSides[REAR].getPiece(2, colNumber));
-            sides[FRONT].setPiece(2, colNumber, previousSides[LEFT].getPiece(2, colNumber));
-            sides[RIGHT].setPiece(2, colNumber, previousSides[FRONT].getPiece(2, colNumber));
-            sides[REAR].setPiece(2, colNumber, previousSides[RIGHT].getPiece(2, colNumber));
-        }
-
-        // Corners, and Edges
-        for (int colNumber = 0; colNumber < COLUMNS; colNumber++)
-        {
-            sides[LEFT].setPiece(3, colNumber, previousSides[RIGHT].getPiece(3, colNumber));
-            sides[FRONT].setPiece(3, colNumber, previousSides[REAR].getPiece(1, colNumber));
-            sides[RIGHT].setPiece(3, colNumber, previousSides[LEFT].getPiece(3, colNumber));
-            sides[REAR].setPiece(1, colNumber, previousSides[FRONT].getPiece(3, colNumber));
-        }
-
-        // Gears
-        sides[LEFT].setPiece(4, 2, previousSides[RIGHT].getPiece(4, 2));
-        sides[FRONT].setPiece(4, 2, previousSides[REAR].getPiece(0, 2));
-        sides[RIGHT].setPiece(4, 2, previousSides[LEFT].getPiece(4, 2));
-        sides[REAR].setPiece(0, 2, previousSides[FRONT].getPiece(4, 2));
-
-        // TOP Face Rotation
-        this->rotateFace180Deg(BOTTOM);
-
-        printBall();
+        this->printBall();
 
         return *this;
     }
 
-    Gearball rotate(int moveToPerform)
+    Gearball rotate(int moveToPerform, bool print = false)
     {
         switch (moveToPerform)
         {
         case ROTATE_TCW:
-            return this->rotate_tcw();
+            this->rotate_tcw();
+            break;
         case ROTATE_BCW:
-            return this->rotate_bcw();
+            this->rotate_bcw();
+            break;
         case ROTATE_LCW:
-            return this->rotate_lcw();
+            this->rotate_lcw();
+            break;
         case ROTATE_RCW:
-            return this->rotate_rcw();
+            this->rotate_rcw();
+            break;
         case ROTATE_TCCW:
-            return this->rotate_tccw();
+            this->rotate_tccw();
+            break;
         case ROTATE_BCCW:
-            return this->rotate_bccw();
+            this->rotate_bccw();
+            break;
         case ROTATE_LCCW:
-            return this->rotate_lccw();
+            this->rotate_lccw();
+            break;
         case ROTATE_RCCW:
-            return this->rotate_rccw();
+            this->rotate_rccw();
+            break;
         default:
             cout << "Wrong move input given!" << endl;
             return *this;
         }
+
+        if (print)
+        {
+            this->printBall();
+        }
+
+        return *this;
     }
 
     // constructor
@@ -690,7 +640,7 @@ public:
         }
     }
 
-    void randomizeCC(int n)
+    void randomizeCC(int n, bool print = false)
     {
         srand(time(0));
         cout << "Running the clockwise randomizer function!" << endl;
@@ -707,7 +657,7 @@ public:
                 ranRot = rand() % 4;
             }
 
-            this->rotate(ranRot);
+            this->rotate(ranRot, print);
             prevRanRot = ranRot;
         }
     }

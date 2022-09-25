@@ -5,100 +5,72 @@
 #include <vector>
 #include "astar.cpp"
 
-// Using the AStar algorithm to pathfind a sequence of moves that solves the current gearball
-void solve(Gearball ball)
+string showMenu(Gearball ball)
 {
-     auto cmp = [](Node x, Node y)
-     { if (x.fCost != y.fCost) {
-          return x.fCost > y.fCost;
-     } else {
-          return x.hCost > y.hCost;
-     } };
-
-     // OPEN //the set of nodes to be evaluated
-     priority_queue<Node, vector<Node>, decltype(cmp)> OPENED(cmp);
-
-     // CLOSED //the set of nodes already evaluated
-     vector<Node> CLOSED;
-
-     // g_cost = distance from starting node
-     // h_cost = distance from end node
-     // f_cost = g_cost + h_cost
-
-     // add the start node to OPEN
-     Node root = Node(ball);
-     OPENED.push(root);
-
-     // loop until the ball is solved
-     while (ball.isSolved() != 1)
+     string userChoice;
+     cout
+         << "Please choose from the following menu options: " << endl;
+     cout << "1. Randomize the gearball" << endl;
+     cout << "2. Solve the gearball" << endl;
+     cout << "3. Perform manual rotations on the ball" << endl;
+     cout << "4. Check if the gearball is solved" << endl;
+     cout << "5. Quit" << endl;
+     cout << "Enter the menu option you want: ";
+     cin >> userChoice;
+     if (userChoice == "2" && ball.isSolved())
      {
-          // current = node in OPEN with the lowest f_cost
-          Node current = OPENED.top();
-
-          // remove current from OPEN
-          OPENED.pop();
-
-          // add current to CLOSED
-          CLOSED.push_back(current);
-
-          // if current is the target node //path has been found
-          // return
-          if (current.currGearballState.isSolved())
-          {
-               cout << "The gearball has been solved!" << endl;
-               return;
-          }
-
-          Node neighbours[4] = {current.rotate(ROTATE_TCCW), current.rotate(ROTATE_BCCW), current.rotate(ROTATE_LCCW), current.rotate(ROTATE_RCCW)};
-
-          bool find(Node nodeToFind, vector<Node> vecNodes)
-          {
-               for (auto &node : vecNodes)
-               {
-                    if (node.currGearballState.isEqual(nodeToFind))
-                    {
-                         return true;
-                    }
-               }
-               return false;
-          }
-
-          // foreach neighbour of the current node
-          for (Node neighbour : neighbours)
-          {
-               // if neighbour is not traversable or neighbour is in CLOSED
-               if (find(neighbour, CLOSED))
-               {
-                    // skip to the next neighbour
-                    continue;
-               }
-
-               // if new path to neighbour is shorter OR neighbour is not in OPEN
-               if ()
-               {
-               }
-               //         set f_cost of neighbour
-               //         set parent of neighbour to current
-               //         if neighbour is not in OPEN
-               //                  add neighbour to OPEN
-          }
+          cout << "The ball is already solved. You need to randomize it first!" << endl
+               << endl;
+          return "1";
      }
 
-     //         foreach neighbour of the current node
-     //                 if neighbour is not traversable or neighbour is in CLOSED
-     //                         skip to the next neighbour
+     if (userChoice == "1" || userChoice == "2" || userChoice == "3" || userChoice == "4" || userChoice == "5")
+     {
+          return userChoice;
+     }
+     else
+     {
+          cout << "You chose an invalid menu option (valid choices are 1, 2, 3, 4 , 5)." << endl
+               << endl;
+          return showMenu(ball);
+     }
+}
 
-     //                 if new path to neighbour is shorter OR neighbour is not in OPEN
-     //                         set f_cost of neighbour
-     //                         set parent of neighbour to current
-     //                         if neighbour is not in OPEN
-     //                                  add neighbour to OPEN
+string rotationMenu(Gearball ball)
+{
+     string userChoice;
+     cout << endl;
+     cout << "Please choose from the following rotation options:" << endl;
+     cout << "1. Rotate the Gearball Top Clockwise" << endl;
+     cout << "2. Rotate the Gearball Bottom Clockwise" << endl;
+     cout << "3. Rotate the Gearball Left Clockwise" << endl;
+     cout << "4. Rotate the Gearball Right Clockwise" << endl;
+     cout << "5. Rotate the Gearball Top Counter Clockwise" << endl;
+     cout << "6. Rotate the Gearball Bottom Counter Clockwise" << endl;
+     cout << "7. Rotate the Gearball Left Counter Clockwise" << endl;
+     cout << "8. Rotate the Gearball Right Counter Clockwise" << endl;
+     cout << "Enter the rotation number you want to perform: ";
+     cin >> userChoice;
+
+     if (userChoice == "1" || userChoice == "2" || userChoice == "3" || userChoice == "4" || userChoice == "5" || userChoice == "6" || userChoice == "7")
+     {
+          return userChoice;
+     }
+     else
+     {
+          cout << "You chose an invalid menu option (valid choices are 1, 2, 3, 4, 5, 6, 7)." << endl
+               << endl;
+          return rotationMenu(ball);
+     }
 }
 
 int main()
 {
      // Creates a gearball object that is initially solved
      Gearball ball = Gearball();
+     AStar aStar;
+
+     cout << "Welcome to the Gearball Puzzle!" << endl;
 
      cout
          << endl
@@ -108,17 +80,53 @@ int main()
      // Print the gearball in its solved state
      ball.printBall();
 
-     string numOfRotations;
-     cout << "Enter the number of random rotations to perform on the gearball: ";
-     cin >> numOfRotations;
+     bool resume = true;
+     while (resume)
+     {
+          cout << endl;
 
-     // Perform "numOfRotations" random rotations on the gearball
+          string userChoice = showMenu(ball);
+          if (userChoice == "1")
+          {
+               cout << endl;
+               string numOfRotations;
+               cout << "Enter the number of random rotations to perform on the gearball: ";
+               cin >> numOfRotations;
 
-     ball.randomizeCC(stoi(numOfRotations));
-
-     AStar aStar;
-
-     int h_value = aStar.heuristic(ball);
+               // Perform "numOfRotations" random rotations on the gearball
+               ball.randomizeCC(stoi(numOfRotations), true);
+          }
+          else if (userChoice == "2")
+          {
+               cout << endl;
+               aStar.solve(ball);
+          }
+          else if (userChoice == "3")
+          {
+               cout << endl;
+               string moveToPerform = rotationMenu(ball);
+               int rotation = stoi(moveToPerform) - 1;
+               ball.rotate(rotation, true);
+          }
+          else if (userChoice == "4")
+          {
+               if (ball.isSolved())
+               {
+                    cout << endl;
+                    cout << "The Gearball is in a solved state!" << endl;
+               }
+               else
+               {
+                    cout << endl;
+                    cout << "The Gearball is in an unsolved state!" << endl;
+               }
+          }
+          else
+          {
+               cout << "Quitting the program!" << endl;
+               resume = false;
+          }
+     }
 
      return 0;
 }
