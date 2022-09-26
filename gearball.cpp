@@ -1,4 +1,3 @@
-// hello
 #ifndef GEARBALL
 #define GEARBALL
 
@@ -145,10 +144,13 @@ public:
     bool isSolved()
     {
         Side *currentBall = this->getSides();
+        string centerPieceColor;
         string currPieceColor;
 
         for (int sides = 0; sides < SIDES; sides++)
         {
+            // get the color of the center piece
+            centerPieceColor = currentBall[sides].getPiece(2, 2).getColor();
             for (int i = 0; i < ROWS; i++)
             {
                 for (int j = 0; j < COLUMNS; j++)
@@ -161,27 +163,7 @@ public:
                     }
                     else
                     {
-                        if (sides == TOP && currPieceColor != "Y")
-                        {
-                            return false;
-                        }
-                        else if (sides == BOTTOM && currPieceColor != "O")
-                        {
-                            return false;
-                        }
-                        else if (sides == LEFT && currPieceColor != "B")
-                        {
-                            return false;
-                        }
-                        else if (sides == RIGHT && currPieceColor != "G")
-                        {
-                            return false;
-                        }
-                        else if (sides == FRONT && currPieceColor != "R")
-                        {
-                            return false;
-                        }
-                        else if (sides == REAR && currPieceColor != "P")
+                        if (currPieceColor != centerPieceColor)
                         {
                             return false;
                         }
@@ -279,9 +261,6 @@ public:
     // Right Clockwise
     Gearball rotate_rcw()
     {
-        cout << "Rotating the Gearball Right Clockwise: " << endl
-             << endl;
-
         this->makeCopy();
 
         // Center Pieces
@@ -318,21 +297,14 @@ public:
     {
         for (int i = 0; i < 11; i++)
         {
-            cout << i << " ---------------- " << endl;
             this->rotate_rcw();
         }
-
-        cout << "Rotating the Gearball Right Counter Clockwise: " << endl
-             << endl;
 
         return *this;
     }
 
     Gearball rotate_lcw()
     {
-        cout << "Rotating the Gearball Left Clockwise: " << endl
-             << endl;
-
         this->makeCopy();
 
         // Center Pieces
@@ -369,21 +341,14 @@ public:
     {
         for (int i = 0; i < 11; i++)
         {
-            cout << i << " ---------------- " << endl;
             this->rotate_lcw();
         }
-
-        cout << "Rotating the Gearball Left Counter Clockwise: " << endl
-             << endl;
 
         return *this;
     }
 
     Gearball rotate_tcw()
     {
-        cout << "Rotating the Gearball Top Clockwise: " << endl
-             << endl;
-
         this->makeCopy();
 
         // Center Pieces
@@ -439,22 +404,14 @@ public:
     {
         for (int i = 0; i < 11; i++)
         {
-            cout << i << " ---------------- " << endl;
             this->rotate_tcw();
         }
-
-        cout << "Rotating the Gearball Top Counter Clockwise: " << endl
-             << endl;
-
-        this->printBall();
 
         return *this;
     }
 
     Gearball rotate_bcw()
     {
-        cout << "Rotating the Gearball Bottom Clockwise: " << endl
-             << endl;
 
         this->makeCopy();
 
@@ -511,14 +468,8 @@ public:
     {
         for (int i = 0; i < 11; i++)
         {
-            cout << i << " ---------------- " << endl;
             this->rotate_bcw();
         }
-
-        cout << "Rotating the Gearball Bottom Counter Clockwise: " << endl
-             << endl;
-
-        this->printBall();
 
         return *this;
     }
@@ -528,27 +479,43 @@ public:
         switch (moveToPerform)
         {
         case ROTATE_TCW:
+            cout << "Rotating the Gearball Top Clockwise: " << endl
+                 << endl;
             this->rotate_tcw();
             break;
         case ROTATE_BCW:
+            cout << "Rotating the Gearball Bottom Clockwise: " << endl
+                 << endl;
             this->rotate_bcw();
             break;
         case ROTATE_LCW:
+            cout << "Rotating the Gearball Left Clockwise: " << endl
+                 << endl;
             this->rotate_lcw();
             break;
         case ROTATE_RCW:
+            cout << "Rotating the Gearball Right Clockwise: " << endl
+                 << endl;
             this->rotate_rcw();
             break;
         case ROTATE_TCCW:
+            cout << "Rotating the Gearball Top Counter Clockwise: " << endl
+                 << endl;
             this->rotate_tccw();
             break;
         case ROTATE_BCCW:
+            cout << "Rotating the Gearball Bottom Counter Clockwise: " << endl
+                 << endl;
             this->rotate_bccw();
             break;
         case ROTATE_LCCW:
+            cout << "Rotating the Gearball Left Counter Clockwise: " << endl
+                 << endl;
             this->rotate_lccw();
             break;
         case ROTATE_RCCW:
+            cout << "Rotating the Gearball Right Counter Clockwise: " << endl
+                 << endl;
             this->rotate_rccw();
             break;
         default:
@@ -588,7 +555,7 @@ public:
     {
         srand(time(0));
         cout << "Running the randomizer function!" << endl;
-        cout << "Performing " << n << " total rotations to the gearball: " << endl
+        cout << "Performing " << n << " total rotation(s) to the gearball: " << endl
              << endl;
 
         int prevRanRot = -1;
@@ -644,7 +611,7 @@ public:
     {
         srand(time(0));
         cout << "Running the clockwise randomizer function!" << endl;
-        cout << "Performing " << n << " total clockwise rotations to the gearball: " << endl
+        cout << "Performing " << n << " total clockwise rotation(s) to the gearball: " << endl
              << endl;
 
         int ranRot;
@@ -660,6 +627,35 @@ public:
             this->rotate(ranRot, print);
             prevRanRot = ranRot;
         }
+    }
+
+    string getString(Gearball ball)
+    {
+        Side *currentBall = this->getSides();
+
+        string currPieceColor;
+        string ballState;
+        for (int sides = 0; sides < SIDES; sides++)
+        {
+            for (int i = 0; i < ROWS; i++)
+            {
+                for (int j = 0; j < COLUMNS; j++)
+                {
+
+                    string currPieceColor = currentBall[sides].getPiece(i, j).getColor();
+                    if (currPieceColor == " ")
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        ballState += currPieceColor;
+                    }
+                }
+            }
+        }
+
+        return ballState;
     }
 };
 

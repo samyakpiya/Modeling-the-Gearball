@@ -9,21 +9,25 @@
 #include <stack>
 #include <algorithm>
 
-// Admissible Heuristic: The number of pieces out of position divided by 36. 36 is the number of pieces that go out of position when one rotation is performed on a solved gearball.
+// Admissible Heuristic 1: The number of pieces out of position divided by 36. 36 is the number of pieces that go out of position when one rotation is performed on a solved gearball.
+// AH1 is faulty in our case because if all the faces were solved but the front face changed from red to blue in the final solved state, every single piece would be out of position.
+// Admissible Heurist 2: The number of pieces that do not match the color of the center piece divided by 32 (i.e. the number of pices that do not match the center piece color when a rotation is performed)
 class AStar
 {
 
 public:
-        double heuristic(Gearball ball)
+        float heuristic(Gearball ball)
         {
                 Side *currentBall = ball.getSides();
 
-                int piecesOutOfPos = 0;
+                float piecesOutOfPos = 0;
+                string centerPieceColor;
                 string currPieceColor;
 
                 // iterate through each face of the gearball
                 for (int sides = 0; sides < SIDES; sides++)
                 {
+                        centerPieceColor = currentBall[sides].getPiece(2, 2).getColor();
                         for (int i = 0; i < ROWS; i++)
                         {
                                 for (int j = 0; j < COLUMNS; j++)
@@ -36,37 +40,41 @@ public:
                                         }
                                         else
                                         {
-                                                if (sides == TOP && currPieceColor != "Y")
+                                                if (currPieceColor != centerPieceColor)
                                                 {
                                                         piecesOutOfPos++;
                                                 }
-                                                else if (sides == BOTTOM && currPieceColor != "O")
-                                                {
-                                                        piecesOutOfPos++;
-                                                }
-                                                else if (sides == LEFT && currPieceColor != "B")
-                                                {
-                                                        piecesOutOfPos++;
-                                                }
-                                                else if (sides == RIGHT && currPieceColor != "G")
-                                                {
-                                                        piecesOutOfPos++;
-                                                }
-                                                else if (sides == FRONT && currPieceColor != "R")
-                                                {
-                                                        piecesOutOfPos++;
-                                                }
-                                                else if (sides == REAR && currPieceColor != "P")
-                                                {
-                                                        piecesOutOfPos++;
-                                                }
+                                                // if (sides == TOP && currPieceColor != "Y")
+                                                // {
+                                                //         piecesOutOfPos++;
+                                                // }
+                                                // else if (sides == BOTTOM && currPieceColor != "O")
+                                                // {
+                                                //         piecesOutOfPos++;
+                                                // }
+                                                // else if (sides == LEFT && currPieceColor != "B")
+                                                // {
+                                                //         piecesOutOfPos++;
+                                                // }
+                                                // else if (sides == RIGHT && currPieceColor != "G")
+                                                // {
+                                                //         piecesOutOfPos++;
+                                                // }
+                                                // else if (sides == FRONT && currPieceColor != "R")
+                                                // {
+                                                //         piecesOutOfPos++;
+                                                // }
+                                                // else if (sides == REAR && currPieceColor != "P")
+                                                // {
+                                                //         piecesOutOfPos++;
+                                                // }
                                         }
                                 }
                         }
                 }
 
                 // Comment
-                int hValue = piecesOutOfPos / 36;
+                float hValue = piecesOutOfPos / 32;
 
                 cout << "The pieces that are out of position are: " << piecesOutOfPos << endl;
                 cout << "The h Values for this Gearball state is: " << hValue << endl;
@@ -89,6 +97,12 @@ public:
         // Using the AStar algorithm to pathfind a sequence of moves that solves the current gearball
         void solve(Gearball ball)
         {
+                Gearball solvedBall = Gearball();
+
+                Node startNode = Node(ball);
+                Node targetNode = Node(solvedBall);
+
+                // min heap comparator
                 auto cmp = [](Node x, Node y)
                 {
                         if (x.fCost != y.fCost)
@@ -113,7 +127,8 @@ public:
 
                 stack<int> movesPerformed;
                 // loop until the ball is solved
-                while (!ball.isSolved())
+                // while (!OPENED.empty())
+                for (int i = 0; i < 2; i++)
                 {
                         // current = node in OPEN with the lowest f_cost
                         Node currentNode = OPENED.top();
@@ -171,13 +186,13 @@ public:
                                 //                  add neighbour to OPEN
                                 bool newPathShorter = false;
                                 int newMovementCostToNeighbor = currentNode.gCost + 10;
+                                cout << "newMovemntCostToNeighbor < neighbor.gCost evaluates to: " << (newMovementCostToNeighbor < neighbor.gCost) << endl;
                                 if (newMovementCostToNeighbor < neighbor.gCost)
                                 {
                                         neighbor.setGCost(newMovementCostToNeighbor);
                                         neighbor.setParent(&currentNode);
-
-                                        OPENED.push(neighbor);
                                 }
+                                OPENED.push(neighbor);
 
                                 // bool neighborInOpen = false;
                                 // priority_queue<Node, vector<Node>, decltype(cmp)> OPENED_COPY(cmp);
