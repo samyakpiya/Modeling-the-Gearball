@@ -29,22 +29,11 @@ class Gearball
 private:
     Side sides[SIDES];
     Side previousSides[SIDES];
-    Side solvedSides[SIDES];
 
 public:
-    Gearball getCopy()
-    {
-        return *this;
-    }
-
     Side *getSides()
     {
         return &sides[SIDES];
-    }
-
-    Side *getSolvedSides()
-    {
-        return &solvedSides[SIDES];
     }
 
     // for printing the TOP, BOTTOM, and REAR faces in the middle
@@ -117,27 +106,6 @@ public:
         this->printThreeFaces(LEFT, FRONT, RIGHT);
         this->printInMiddle(BOTTOM);
         this->printInMiddle(REAR);
-    }
-
-    // store a the sorted Gearball sides
-    void saveSolvedState()
-    {
-        this->solvedSides[TOP] = Side("TOP", "Y");
-        this->solvedSides[BOTTOM] = Side("BOTTOM", "O");
-        this->solvedSides[LEFT] = Side("LEFT", "B");
-        this->solvedSides[RIGHT] = Side("RIGHT", "G");
-        this->solvedSides[FRONT] = Side("FRONT", "R");
-        this->solvedSides[REAR] = Side("REAR", "P");
-    }
-
-    void solve()
-    {
-        this->sides[TOP] = this->solvedSides[TOP];
-        this->sides[BOTTOM] = this->solvedSides[BOTTOM];
-        this->sides[LEFT] = this->solvedSides[LEFT];
-        this->sides[RIGHT] = this->solvedSides[RIGHT];
-        this->sides[FRONT] = this->solvedSides[FRONT];
-        this->sides[REAR] = this->solvedSides[REAR];
     }
 
     // returns whether or not the ball is solved
@@ -217,13 +185,6 @@ public:
         this->sides[RIGHT] = Side("RIGHT", "G");
         this->sides[FRONT] = Side("FRONT", "R");
         this->sides[REAR] = Side("REAR", "P");
-
-        this->solvedSides[TOP] = Side("TOP", "Y");
-        this->solvedSides[BOTTOM] = Side("BOTTOM", "O");
-        this->solvedSides[LEFT] = Side("LEFT", "B");
-        this->solvedSides[RIGHT] = Side("RIGHT", "G");
-        this->solvedSides[FRONT] = Side("FRONT", "R");
-        this->solvedSides[REAR] = Side("REAR", "P");
     }
 
     void makeCopy()
@@ -474,48 +435,57 @@ public:
         return *this;
     }
 
+    // Master rotation function
     Gearball rotate(int moveToPerform, bool print = false)
     {
         switch (moveToPerform)
         {
         case ROTATE_TCW:
-            cout << "Rotating the Gearball Top Clockwise: " << endl
-                 << endl;
+            if (print)
+                cout << "Rotating the Gearball Top Clockwise: " << endl
+                     << endl;
             this->rotate_tcw();
             break;
         case ROTATE_BCW:
-            cout << "Rotating the Gearball Bottom Clockwise: " << endl
-                 << endl;
+            if (print)
+                cout << "Rotating the Gearball Bottom Clockwise: " << endl
+                     << endl;
             this->rotate_bcw();
             break;
         case ROTATE_LCW:
-            cout << "Rotating the Gearball Left Clockwise: " << endl
-                 << endl;
+            if (print)
+                cout << "Rotating the Gearball Left Clockwise: " << endl
+                     << endl;
             this->rotate_lcw();
             break;
         case ROTATE_RCW:
-            cout << "Rotating the Gearball Right Clockwise: " << endl
-                 << endl;
+            if (print)
+                cout << "Rotating the Gearball Right Clockwise: " << endl
+                     << endl;
             this->rotate_rcw();
             break;
         case ROTATE_TCCW:
-            cout << "Rotating the Gearball Top Counter Clockwise: " << endl
-                 << endl;
+            if (print)
+                cout << "Rotating the Gearball Top Counter Clockwise: " << endl
+                     << endl;
             this->rotate_tccw();
             break;
         case ROTATE_BCCW:
-            cout << "Rotating the Gearball Bottom Counter Clockwise: " << endl
-                 << endl;
+            if (print)
+                cout << "Rotating the Gearball Bottom Counter Clockwise: " << endl
+                     << endl;
             this->rotate_bccw();
             break;
         case ROTATE_LCCW:
-            cout << "Rotating the Gearball Left Counter Clockwise: " << endl
-                 << endl;
+            if (print)
+                cout << "Rotating the Gearball Left Counter Clockwise: " << endl
+                     << endl;
             this->rotate_lccw();
             break;
         case ROTATE_RCCW:
-            cout << "Rotating the Gearball Right Counter Clockwise: " << endl
-                 << endl;
+            if (print)
+                cout << "Rotating the Gearball Right Counter Clockwise: " << endl
+                     << endl;
             this->rotate_rccw();
             break;
         default:
@@ -550,8 +520,8 @@ public:
     }
 
     // random rotation functions - picks rotation functions and applies them
-    // to the gearball to come up with a randomized gearball.
-    void randomize(int n)
+    // to the gearball to come up with a pseudo randomized gearball.
+    void randomize(int n, int modular = 8, bool print = false)
     {
         srand(time(0));
         cout << "Running the randomizer function!" << endl;
@@ -563,7 +533,7 @@ public:
         for (int i = 0; i < n; i++)
         {
 
-            int ranRot = rand() % 8; // range 0 to 7 - total of 8 different rotation methods
+            int ranRot = rand() % modular; // range 0 to 7 - total of 8 different rotation methods
 
             // to avoid a sequence of clockwise and counter clockwise rotations
             // (for example, top clockwise and then top counterclockwise which negates one another)
@@ -600,62 +570,61 @@ public:
                 ranRot = restartRandomization(ranRot);
             }
 
-            cout << i + 1 << ". "; // Indexing each rotation performed
-
-            this->rotate(ranRot);
-            prevRanRot = ranRot;
-        }
-    }
-
-    void randomizeCC(int n, bool print = false)
-    {
-        srand(time(0));
-        cout << "Running the clockwise randomizer function!" << endl;
-        cout << "Performing " << n << " total clockwise rotation(s) to the gearball: " << endl
-             << endl;
-
-        int ranRot;
-        int prevRanRot = -1;
-        for (int i = 0; i < n; i++)
-        {
-            ranRot = rand() % 4;
-            while (ranRot == prevRanRot)
-            {
-                ranRot = rand() % 4;
-            }
-
+            cout << "R" << i + 1 << ". ";
             this->rotate(ranRot, print);
             prevRanRot = ranRot;
         }
     }
 
-    string getString(Gearball ball)
+    // Overloaded operator for testing the average number of nodes expanded for a k-randomized puzzle
+    // to avoid printing unrelevant stuff
+    void randomize(int n, string overload, int modular = 8, bool print = false)
     {
-        Side *currentBall = this->getSides();
-
-        string currPieceColor;
-        string ballState;
-        for (int sides = 0; sides < SIDES; sides++)
+        int prevRanRot = -1;
+        // n -> the no. of rotations to perform
+        for (int i = 0; i < n; i++)
         {
-            for (int i = 0; i < ROWS; i++)
+
+            int ranRot = rand() % modular; // range 0 to 7 - total of 8 different rotation methods
+
+            // to avoid a sequence of clockwise and counter clockwise rotations
+            // (for example, top clockwise and then top counterclockwise which negates one another)
+            if (prevRanRot == ROTATE_TCW && ranRot == ROTATE_TCCW)
             {
-                for (int j = 0; j < COLUMNS; j++)
-                {
-
-                    string currPieceColor = currentBall[sides].getPiece(i, j).getColor();
-                    if (currPieceColor == " ")
-                    {
-                        continue;
-                    }
-                    else
-                    {
-                        ballState += currPieceColor;
-                    }
-                }
+                ranRot = restartRandomization(ranRot);
             }
-        }
+            else if (prevRanRot == ROTATE_TCCW && ranRot == ROTATE_TCW)
+            {
+                ranRot = restartRandomization(ranRot);
+            }
+            else if (prevRanRot == ROTATE_BCW && ranRot == ROTATE_BCCW)
+            {
+                ranRot = restartRandomization(ranRot);
+            }
+            else if (prevRanRot == ROTATE_BCCW && ranRot == ROTATE_BCW)
+            {
+                ranRot = restartRandomization(ranRot);
+            }
+            else if (prevRanRot == ROTATE_LCW && ranRot == ROTATE_LCCW)
+            {
+                ranRot = restartRandomization(ranRot);
+            }
+            else if (prevRanRot == ROTATE_LCCW && ranRot == ROTATE_LCW)
+            {
+                ranRot = restartRandomization(ranRot);
+            }
+            else if (prevRanRot == ROTATE_RCW && ranRot == ROTATE_RCCW)
+            {
+                ranRot = restartRandomization(ranRot);
+            }
+            else if (prevRanRot == ROTATE_RCCW && ranRot == ROTATE_RCW)
+            {
+                ranRot = restartRandomization(ranRot);
+            }
 
-        return ballState;
+            this->rotate(ranRot, print);
+            prevRanRot = ranRot;
+        }
     }
 };
 

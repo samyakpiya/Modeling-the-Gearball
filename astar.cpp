@@ -3,263 +3,232 @@
 
 #include "gearball.cpp"
 #include "node.cpp"
-#include <functional>
-#include <queue>
+#include <queue> // for min priority_queue
 #include <vector>
 #include <stack>
-#include <algorithm>
+#include <algorithm> // needed erase(), count()
 
-// Admissible Heuristic 1: The number of pieces out of position divided by 36. 36 is the number of pieces that go out of position when one rotation is performed on a solved gearball.
-// AH1 is faulty in our case because if all the faces were solved but the front face changed from red to blue in the final solved state, every single piece would be out of position.
-// Admissible Heurist 2: The number of pieces that do not match the color of the center piece divided by 32 (i.e. the number of pices that do not match the center piece color when a rotation is performed)
+// We used Admissible Heurisitc 2
+// Admissible Heuristic 1 (intial): The number of pieces out of position divided by 36. 36 is the number
+// of pieces that go out of position when one rotation is performed on a solved gearball.
+// AH1 is not good in our case because of how our code prints the ball. If all the faces were solved but
+// the front face changed from red to blue in the final solved state, every single piece would be out of position.
+
+// Admissible Heuristic 2 (final): The number of pieces that do not match the color of the center piece
+// divided by 32 and then multiplied by 10 (i.e. the number of pieces that do not match the center piece
+// color when a rotation is performed)
+
 class AStar
 {
 
 public:
-        float heuristic(Gearball ball)
+    // Evaluates the h-value of a gearball state and returns it
+    // uses admissible heuristic 2
+    float heuristic(Gearball ball, int movePerformed)
+    {
+        Side *currentBall = ball.getSides();
+
+        float piecesOutOfPos = 0;
+        string centerPieceColor;
+        string currPieceColor;
+
+        // iterate through each face of the gearball
+        for (int sides = 0; sides < SIDES; sides++)
         {
-                Side *currentBall = ball.getSides();
-
-                float piecesOutOfPos = 0;
-                string centerPieceColor;
-                string currPieceColor;
-
-                // iterate through each face of the gearball
-                for (int sides = 0; sides < SIDES; sides++)
+            centerPieceColor = currentBall[sides].getPiece(2, 2).getColor();
+            for (int i = 0; i < ROWS; i++)
+            {
+                for (int j = 0; j < COLUMNS; j++)
                 {
-                        centerPieceColor = currentBall[sides].getPiece(2, 2).getColor();
-                        for (int i = 0; i < ROWS; i++)
-                        {
-                                for (int j = 0; j < COLUMNS; j++)
-                                {
 
-                                        currPieceColor = currentBall[sides].getPiece(i, j).getColor();
-                                        if (currPieceColor == " ")
-                                        {
-                                                continue;
-                                        }
-                                        else
-                                        {
-                                                if (currPieceColor != centerPieceColor)
-                                                {
-                                                        piecesOutOfPos++;
-                                                }
-                                                // if (sides == TOP && currPieceColor != "Y")
-                                                // {
-                                                //         piecesOutOfPos++;
-                                                // }
-                                                // else if (sides == BOTTOM && currPieceColor != "O")
-                                                // {
-                                                //         piecesOutOfPos++;
-                                                // }
-                                                // else if (sides == LEFT && currPieceColor != "B")
-                                                // {
-                                                //         piecesOutOfPos++;
-                                                // }
-                                                // else if (sides == RIGHT && currPieceColor != "G")
-                                                // {
-                                                //         piecesOutOfPos++;
-                                                // }
-                                                // else if (sides == FRONT && currPieceColor != "R")
-                                                // {
-                                                //         piecesOutOfPos++;
-                                                // }
-                                                // else if (sides == REAR && currPieceColor != "P")
-                                                // {
-                                                //         piecesOutOfPos++;
-                                                // }
-                                        }
-                                }
+                    currPieceColor = currentBall[sides].getPiece(i, j).getColor();
+                    if (currPieceColor == " ")
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        if (currPieceColor != centerPieceColor)
+                        {
+                            piecesOutOfPos++;
                         }
+                    }
+                }
+            }
+        }
+
+        float hValue = (piecesOutOfPos / 32) * 10;
+
+        // For testing:
+        // cout << "The pieces that are out of position are: " << piecesOutOfPos << endl;
+        // cout << "The h Values for turning the Gearball " << intToMovePerformed(movePerformed) << " is: " << hValue << endl;
+
+        return hValue;
+    }
+
+    string intToMovePerformed(int movePerformed)
+    {
+        switch (movePerformed)
+        {
+        case ROTATE_TCW:
+            return "Top Clockwise";
+        case ROTATE_BCW:
+            return "Bottom Clockwise";
+        case ROTATE_LCW:
+            return "Left Clockwise";
+        case ROTATE_RCW:
+            return "Right Clockwise";
+        case ROTATE_TCCW:
+            return "Top Counter Clockwise";
+        case ROTATE_BCCW:
+            return "Bottom Counter Clockwise";
+        case ROTATE_LCCW:
+            return "Left Counter Clockwise";
+        case ROTATE_RCCW:
+            return "Right Counter Clockwise";
+        default:
+            return "Wrong rotation int entered!";
+        }
+    }
+
+    // Trace back to the parent node and print the sequence of moves that solved the gearball
+    void retracePath(Node &child, Gearball &ball, int nodesExpanded)
+    {
+        cout << "The gearball has been solved! The number of nodes expanded to solve the gearball is: " << nodesExpanded << "." << endl
+             << endl;
+
+        cout << "Gearball state before solving: " << endl;
+        ball.printBall();
+
+        cout << "Steps taken to solve the gearball are as follows: " << endl
+             << endl;
+
+        stack<int> movesPerformed;
+        // Trace back to the parent node while storing the moves performed on the stack
+        while (child.parent != NULL)
+        {
+            movesPerformed.push(child.movePerformed);
+            child = *child.parent;
+        }
+
+        // Print the sequence while popping the stack
+        int movePerformed;
+        int rotationsPerformed = 1;
+        while (!movesPerformed.empty())
+        {
+            movePerformed = movesPerformed.top();
+            cout << "S" << rotationsPerformed << "." << intToMovePerformed(movePerformed) << endl;
+            ball.rotate(movePerformed);
+            ball.printBall();
+            movesPerformed.pop();
+            rotationsPerformed++;
+        }
+
+        return;
+    }
+
+    // AStar algorithm to pathfind a sequence of moves that solves the current gearball
+    // returns the number of nodes expanded when solving the ball
+    int solve(Gearball &ball, bool print = true)
+    {
+        Node startNode = Node(ball);
+
+        // the set of nodes to be evaluated
+        vector<Node> openSet;
+
+        // the set of nodes already evaluated
+        vector<Node> closedSet;
+        int closedSetIndex = 0;
+
+        // Each node has 4 children at max
+        Node children[4];
+
+        // add the start node to OPEN
+        openSet.push_back(startNode);
+
+        // loop
+        while (!openSet.empty())
+        {
+            // node = node in OPEN with the lowest f_cost
+            Node node = openSet.at(0);
+            for (int i = 1; i < openSet.size(); i++)
+            {
+                if (openSet[i].getFCost() < node.getFCost() || (openSet[i].getFCost() == node.getFCost() && openSet[i].hCost < node.hCost))
+                {
+                    node = openSet[i];
+                }
+            }
+
+            // remove current node from openSet
+            openSet.erase(remove(openSet.begin(), openSet.end(), node));
+
+            // add current node to closedSet
+            closedSet.push_back(node);
+
+            // if current is the target node //path has been found
+            //    return
+            if (node.ball.isSolved())
+            {
+
+                // Trace back to the parent node and print the moves performed to solve the gearball
+                if (print)
+                    retracePath(node, ball, closedSet.size());
+
+                return closedSet.size();
+            }
+
+            // make copies of the current node to create children
+            Node nodeTCCW = node;
+            Node nodeBCCW = node;
+            Node nodeLCCW = node;
+            Node nodeRCCW = node;
+
+            // Each gearball state has 4 neighbor states (reached by top, bottom, left, or right clockwise rotations)
+            children[0] = (Node(ROTATE_TCCW, nodeTCCW.ball.rotate(ROTATE_TCCW)));
+            children[1] = (Node(ROTATE_BCCW, nodeBCCW.ball.rotate(ROTATE_BCCW)));
+            children[2] = (Node(ROTATE_LCCW, nodeLCCW.ball.rotate(ROTATE_LCCW)));
+            children[3] = (Node(ROTATE_RCCW, nodeRCCW.ball.rotate(ROTATE_RCCW)));
+
+            // foreach child of the current node
+            for (Node child : children)
+            {
+
+                // if child is not traversable or child is in CLOSED
+                if ((count(closedSet.begin(), closedSet.end(), child)))
+                {
+                    // skip to the next child
+                    continue;
                 }
 
-                // Comment
-                float hValue = piecesOutOfPos / 32;
+                float newCostTochild = node.gCost + 10;
 
-                cout << "The pieces that are out of position are: " << piecesOutOfPos << endl;
-                cout << "The h Values for this Gearball state is: " << hValue << endl;
-
-                return hValue;
-        }
-
-        bool find(Node nodeToFind, vector<Node> vecNodes)
-        {
-                for (auto &node : vecNodes)
+                // if new path to child is shorter OR child is not in OPEN
+                if (newCostTochild < child.gCost || !(count(openSet.begin(), openSet.end(), child)))
                 {
-                        if (node.currGearballState.isEqual(nodeToFind.currGearballState))
-                        {
-                                return true;
-                        }
+                    // set f_cost of child
+                    child.gCost = newCostTochild;
+                    child.hCost = heuristic(child.ball, child.movePerformed);
+
+                    // set parent of child to current
+                    child.parent = &closedSet[closedSetIndex];
+
+                    // if child is not in openSet
+                    if (!(count(openSet.begin(), openSet.end(), child)))
+                    {
+                        // add child to openSet
+                        openSet.push_back(child);
+                    }
                 }
-                return false;
+            }
+            closedSetIndex++;
         }
+        return closedSet.size();
+    }
 
-        // Using the AStar algorithm to pathfind a sequence of moves that solves the current gearball
-        void solve(Gearball ball)
-        {
-                Gearball solvedBall = Gearball();
-
-                Node startNode = Node(ball);
-                Node targetNode = Node(solvedBall);
-
-                // min heap comparator
-                auto cmp = [](Node x, Node y)
-                {
-                        if (x.fCost != y.fCost)
-                        {
-                                return x.fCost > y.fCost;
-                        }
-                        else
-                        {
-                                return x.hCost > y.hCost;
-                        };
-                };
-
-                // OPEN //the set of nodes to be evaluated
-                priority_queue<Node, vector<Node>, decltype(cmp)> OPENED(cmp);
-
-                // CLOSED //the set of nodes already evaluated
-                vector<Node> CLOSED;
-
-                // add the start node to OPEN
-                Node root = Node(ball, this->heuristic(ball));
-                OPENED.push(root);
-
-                stack<int> movesPerformed;
-                // loop until the ball is solved
-                // while (!OPENED.empty())
-                for (int i = 0; i < 2; i++)
-                {
-                        // current = node in OPEN with the lowest f_cost
-                        Node currentNode = OPENED.top();
-
-                        // remove current from OPEN
-                        OPENED.pop();
-
-                        // add current to CLOSED
-                        CLOSED.push_back(currentNode);
-
-                        // if current is the target node //path has been found
-                        // return
-                        if (currentNode.currGearballState.isSolved())
-                        {
-                                cout << endl;
-                                cout << "-----------The gearball has been solved! -----------" << endl;
-                                cout << endl;
-                                while (currentNode.parent != NULL)
-                                {
-                                        movesPerformed.push(currentNode.movePerformed);
-                                        currentNode = *currentNode.parent;
-                                }
-
-                                while (!movesPerformed.empty())
-                                {
-                                        ball.rotate(movesPerformed.top());
-                                        movesPerformed.pop();
-                                }
-                                return;
-                        }
-
-                        cout << "Neighbors Start:" << endl;
-                        Gearball neighborBalls[4] = {currentNode.currGearballState.rotate(ROTATE_TCCW), currentNode.currGearballState.rotate(ROTATE_BCCW), currentNode.currGearballState.rotate(ROTATE_LCCW), currentNode.currGearballState.rotate(ROTATE_RCCW)};
-                        Node neighbors[4] = {Node(ROTATE_TCCW, neighborBalls[0], this->heuristic(neighborBalls[0]), &currentNode),
-                                             Node(ROTATE_BCCW, neighborBalls[1], this->heuristic(neighborBalls[1]), &currentNode),
-                                             Node(ROTATE_LCCW, neighborBalls[2], this->heuristic(neighborBalls[2]), &currentNode),
-                                             Node(ROTATE_RCCW, neighborBalls[3], this->heuristic(neighborBalls[3]), &currentNode)};
-
-                        cout << "Neighbors End" << endl;
-
-                        // foreach neighbour of the current node
-                        for (Node neighbor : neighbors)
-                        {
-                                // if neighbour is not traversable or neighbour is in CLOSED
-                                if (find(neighbor, CLOSED))
-                                {
-                                        // skip to the next neighbour
-                                        continue;
-                                }
-
-                                // if new path to neighbour is shorter OR neighbour is not in OPEN
-                                //         set f_cost of neighbour
-                                //         set parent of neighbour to current
-                                //         if neighbour is not in OPEN
-                                //                  add neighbour to OPEN
-                                bool newPathShorter = false;
-                                int newMovementCostToNeighbor = currentNode.gCost + 10;
-                                cout << "newMovemntCostToNeighbor < neighbor.gCost evaluates to: " << (newMovementCostToNeighbor < neighbor.gCost) << endl;
-                                if (newMovementCostToNeighbor < neighbor.gCost)
-                                {
-                                        neighbor.setGCost(newMovementCostToNeighbor);
-                                        neighbor.setParent(&currentNode);
-                                }
-                                OPENED.push(neighbor);
-
-                                // bool neighborInOpen = false;
-                                // priority_queue<Node, vector<Node>, decltype(cmp)> OPENED_COPY(cmp);
-                                // OPENED_COPY = OPENED;
-
-                                // while (!OPENED_COPY.empty())
-                                // {
-                                //         if (OPENED_COPY.top().currGearballState.isEqual(neighbor.currGearballState))
-                                //         {
-                                //                 OPENED_COPY.pop();
-                                //                 neighborInOpen = true;
-                                //                 break;
-                                //         }
-                                // }
-
-                                // if (!neighborInOpen)
-                                // { // add condition: new path to neighbour is shorter
-                                //         if (!neighborInOpen)
-                                //         {
-                                //                 OPENED.push(neighbor)
-                                //         }
-                                // }
-                        }
-                }
-        }
-
-        AStar()
-        {
-        }
+    // constructor
+    AStar()
+    {
+    }
 };
-
-/*
-Heuristic:
-
-Calculate the number of pieces that are out of place and divide that by 36.
-If we take a gearball that is in a solved state and perform one rotation on it,
-36 pieces are displaced as a result. Hence, we divide the number of pieces
-that are out of place by 36.
-
-*/
-
-/*
-OPEN //the set of nodes to be evaluated
-CLOSED //the set of nodes already evaluated
-g_cost = distance from starting node
-h_cost = distance from end node
-f_cost = g_cost + h_cost
-
-
-add the start node to OPEN
-
-loop
-        current = node in OPEN with the lowest f_cost
-        remove current from OPEN
-        add current to CLOSED
-
-        if current is the target node //path has been found
-                return
-
-        foreach neighbour of the current node
-                if neighbour is not traversable or neighbour is in CLOSED
-                        skip to the next neighbour
-
-                if new path to neighbour is shorter OR neighbour is not in OPEN
-                        set f_cost of neighbour
-                        set parent of neighbour to current
-                        if neighbour is not in OPEN
-*/
 
 #endif

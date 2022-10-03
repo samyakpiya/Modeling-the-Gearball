@@ -17,11 +17,18 @@ public:
         return gCost + hCost;
     }
 
+    // default constructor
+    Node()
+    {
+    }
+
     // initialize the root node use this constructor
     Node(Gearball _ball)
     {
         ball = _ball;
         parent = NULL; // making the object the root node
+        movePerformed = -1;
+        gCost = 0;
     }
 
     Node(int _movePerformed, Gearball _ball)
